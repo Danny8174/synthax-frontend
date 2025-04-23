@@ -37,7 +37,7 @@
 
     async function runCode() {
       const code = editor.getValue();
-      const res = await fetch("https://synthax-backend.onrender.com/run", {
+     const res = await fetch("https://synthax-backend.onrender.com/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code })
