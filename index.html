@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Synthax Web Runner</title>
+  <style>
+    body { margin: 0; font-family: sans-serif; display: flex; flex-direction: column; height: 100vh; }
+    #editor { height: 60%; }
+    #controls { padding: 10px; background: #1e1e1e; display: flex; gap: 10px; }
+    button { padding: 10px; font-size: 14px; cursor: pointer; }
+    #output { flex: 1; background: #111; color: #0f0; padding: 10px; font-family: monospace; overflow: auto; white-space: pre-wrap; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.34.0/min/vs/loader.js"></script>
+</head>
+<body>
+  <div id="controls">
+    <button onclick="runCode()">Run (Ctrl+Enter)</button>
+    <button onclick="clearOutput()">Clear</button>
+  </div>
+  <div id="editor"></div>
+  <pre id="output">// Output will appear here</pre>
+
+  <script>
+    let editor;
+    require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.0/min/vs' }});
+    require(['vs/editor/editor.main'], function () {
+      editor = monaco.editor.create(document.getElementById('editor'), {
+        value: '// Paste Synthax code here\nlog "Hello from Synthax!"',
+        language: 'plaintext',
+        theme: 'vs-dark'
+      });
+
+      window.addEventListener("keydown", function (e) {
+        if (e.ctrlKey && e.key === "Enter") runCode();
+      });
+    });
+
+    async function runCode() {
+      const code = editor.getValue();
+      const res = await fetch("https://synthax-backend.onrender.com/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code })
+      });
+      const data = await res.json();
+      document.getElementById("output").textContent = data.output || "// No output";
+    }
+
+    function clearOutput() {
+      document.getElementById("output").textContent = "";
+    }
+  </script>
+</body>
+</html>
